@@ -22,11 +22,5 @@ yarn-error.log
 /.vscode
 /.zed
 
-# Docker ignores (outside Laravel project)
-../Dockerfile
-../docker-compose.yml
-../nginx.conf/
-../php.ini/
-../.dockerignore
-../docker/
+
 
