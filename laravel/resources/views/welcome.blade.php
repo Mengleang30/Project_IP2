@@ -8,6 +8,6 @@
 
     </head>
     <body >
-        <h2>Hello Laravel Project</h2>
+        <h2 style="color: blue">Hello Laravel Project</h2>
     </body>
 </html>
