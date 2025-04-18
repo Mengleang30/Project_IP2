@@ -36,6 +36,10 @@ class User extends Model
     {
         return $this->hasMany(Transaction::class);
     }
+    public function cart() {
+        return $this->hasOne(Cart::class);
+    }
+
     // relationship with books for review
     // public function reviews()
     // {

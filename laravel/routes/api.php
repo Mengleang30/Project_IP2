@@ -27,3 +27,4 @@ Route::group(['prefix' => 'categories'], function () {
     Route::delete('/{id}', CategoryController::class . '@deleteCategory');
 });
 
+
