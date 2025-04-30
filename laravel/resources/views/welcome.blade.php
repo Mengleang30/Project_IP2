@@ -8,6 +8,9 @@
 
     </head>
     <body >
-        <h2 style="color: blue">Hello Laravel Project</h2>
+        <div style="text-align: center; margin-top: 20%;">
+            <h2 style="color: blue; ">Hello Laravel Project</h2>
+        </div>
+
     </body>
 </html>
