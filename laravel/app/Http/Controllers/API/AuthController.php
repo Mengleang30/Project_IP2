@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Routing\Controller;
 use App\Models\User;
@@ -55,6 +54,20 @@ class AuthController extends Controller
             'password' => 'required|string|min:8',
             'role' => 'required|in:admin,customer',
         ]);
+
+        if (strlen($validated['password']) < 8) {
+            return response()->json([
+                'message' => 'Password must be at least 8 characters long',
+            ], 422);
+        }
+        
+        // check if the email already exists
+        $existingUser = User::where('email', $validated['email'])->first();
+        if ($existingUser) {
+            return response()->json([
+                'message' => 'Email already exists',
+            ], 422);
+        }
 
         $validated = User::create([
             'name' => $validated['name'],

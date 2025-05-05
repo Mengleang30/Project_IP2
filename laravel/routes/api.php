@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\GoogleController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
@@ -21,6 +22,15 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 
 Route::post('/register', [AuthController::class, 'register']);
 
+
+Route::middleware('auth:api')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
+
+
+Route::get('login/google', [GoogleController::class, 'redirectToGoogle']);
+Route::get('login/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 // check if the user is logged in
 Route::get('/logged_user', function (Request $request) {
@@ -116,7 +126,7 @@ Route::group(['prefix' => '/customer/wishlist', 'middleware' => ['auth:sanctum',
 
 
 Route::group(['prefix' => 'customer', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
-    Route::patch('/update_information', [CustomerController::class, 'customerUpdateInformation']);
+    Route::patch('customer/update_information', [CustomerController::class, 'customerUpdateInformation']);
 });
 
 
