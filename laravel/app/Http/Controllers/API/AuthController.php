@@ -47,4 +47,31 @@ class AuthController extends Controller
         ], 200);
     }
 
+    public function register(Request $request){
+        $validated = $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'nullable|string|default:NULL',
+            'password' => 'required|string|min:8',
+            'role' => 'required|in:admin,customer',
+        ]);
+
+        $validated = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'password' => bcrypt($validated['password']),
+            'role' => $validated['role'],
+        ]);
+        return response()->json([
+            'message' => 'User created successfully',
+            'user' => $validated,
+        ], 201);
+
+    }
+
+
+
+
+
 }

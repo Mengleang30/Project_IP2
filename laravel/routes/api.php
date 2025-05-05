@@ -2,31 +2,37 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Password\PasswordController;
+use App\Http\Controllers\User\AdminController;
+use App\Http\Controllers\User\CustomerController;
 use App\Http\Controllers\WishListController;
-use App\Http\Controllers\UserController;
-use App\Models\User;
+
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 
+
+// Public routes
 Route::post('/login', [AuthController::class, 'login']);
+
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
+Route::post('/register', [AuthController::class, 'register']);
 
 
-
-Route::get('/user', function (Request $request) {
+// check if the user is logged in
+Route::get('/logged_user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::post('/password/forgot', [PasswordController::class, 'sendResetCode']);
+Route::post('/password/reset', [PasswordController::class, 'resetPassword']);
 // group of /api/books
 Route::group(['prefix' => 'books'], function () {
     Route::get('/', 'App\Http\Controllers\BookController@listAllBooks');
     Route::get('/id/{id}', 'App\Http\Controllers\BookController@listBookById');
-    Route::post('/', 'App\Http\Controllers\BookController@createBooks');
-    Route::patch('/{id}', 'App\Http\Controllers\BookController@updateBooks');
-    Route::delete('/{id}', 'App\Http\Controllers\BookController@deleteBooks');
     Route::get('by_category/{category_id}', [BookController::class, 'listBookByCategory']);
     Route::get('/group_category', [BookController::class, 'groupBooksByCategory']);
     Route::get('/books_discount', [BookController::class, 'filterByDiscount']);
@@ -39,48 +45,85 @@ Route::group(['prefix' => 'books'], function () {
 Route::group(['prefix' => 'categories'], function () {
     Route::get('/', CategoryController::class . '@ListAllCategories');
     Route::get('/{id}', CategoryController::class . '@ListCategoryById');
-    // Route::post('/', CategoryController::class . '@createCategory');
-    // Route::patch('/{id}', CategoryController::class . '@updateCategory');
-    // Route::delete('/{id}', CategoryController::class . '@deleteCategory');
+
 });
 
-Route::group(['prefix' => 'categories/admin'], function () {
-    // Route::get('/', CategoryController::class . '@ListAllCategories');
-    Route::get('/{id}', CategoryController::class . '@ListCategoryById');
+Route::group(['prefix' => '/customer/cart', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
+    Route::post('/add', [CartController::class, 'addToCart']);
+    Route::get('/', [CartController::class, 'getCart']);
+    Route::delete('/delete/{id}', [CartController::class, 'deleteCartBook']);
+});
+
+
+
+// Admin-only book routes
+Route::group(['prefix' => '/admin/books', 'middleware' => ['auth:sanctum', 'isAdmin']], function () {
+    Route::post('/', [BookController::class, 'createBooks']);
+    Route::patch('/{id}', [BookController::class, 'updateBooks']);
+    Route::delete('/{id}', [BookController::class, 'deleteBooks']);
+});
+// Admin-only category routes
+Route::group(['prefix' => 'admin/categories', 'middleware' => ['auth:sanctum', 'isAdmin']], function () {
     Route::post('/', CategoryController::class . '@createCategory');
     Route::patch('/{id}', CategoryController::class . '@updateCategory');
     Route::delete('/{id}', CategoryController::class . '@deleteCategory');
-})->middleware('auth:sanctum');
-
-Route::group(['prefix' => 'users'], function () {
-   Route::get('/',[UserController::class, 'listAllUsers']);
-   Route::post('/',[UserController::class, 'createUser']);
-   Route::patch('/{id}',[UserController::class, 'updateUser']);
-   Route::patch('/update_password/{id}',[UserController::class, 'updatePassword']);
 });
 
 
 
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/admin-dashboard', function () {
-        if (Auth::user()->role !== 'admin') {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-        return response()->json(['message' => 'Welcome to the Admin Dashboard']);
-    });
+// Route::group(['prefix' => 'users'], function () {
+//    Route::get('/',[UserController::class, 'listAllUsers']);
+//    Route::post('/',[UserController::class, 'createUser']);
+//    Route::patch('/{id}',[UserController::class, 'updateUser']);
+//    Route::patch('/update_password/{id}',[UserController::class, 'updatePassword']);
+// })->middleware('auth:sanctum');
+Route::group(['prefix' => '/admin/users_management/'], function () {
+    Route::get('/',[AdminController::class, 'listAllCustomers']);
+    Route::get('/{id}',[AdminController::class, 'findCustomerById']);
+    Route::delete('/{id}',[AdminController::class, 'deleteCustomer']);
+    Route::patch('/update_password/{id}',[AdminController::class, 'updatePassword']);
+    Route::patch('/update_user',[AdminController::class, 'updateUser']);
+})->middleware('auth:sanctum', 'isAdmin');
 
-    Route::get('/user-dashboard', function () {
-        if (Auth::user()->role !== 'customer') {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-        return response()->json(['message' => 'Welcome to the User Dashboard']);
-    });
+
+
+
+// Route::middleware(['auth:sanctum'])->group(function () {
+//     Route::get('/admin-dashboard', function () {
+//         if (Auth::user()->role !== 'admin') {
+//             return response()->json(['message' => 'Unauthorized'], 403);
+//         }
+//         return response()->json(['message' => 'Welcome to the Admin Dashboard']);
+//     });
+
+//     Route::get('/user-dashboard', function () {
+//         if (Auth::user()->role !== 'customer') {
+//             return response()->json(['message' => 'Unauthorized'], 403);
+//         }
+//         return response()->json(['message' => 'Welcome to the User Dashboard']);
+//     });
+// });
+
+
+
+Route::group(['prefix' => '/customer/wishlist', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
+    Route::post('/', [WishListController::class, 'addToWishlist']);
+    Route::get('/', [WishListController::class, 'getWishlist']);
+    Route::delete('/remove/{id}', [WishListController::class, 'removeWishlistById']);
+    Route::delete(('/clear'), [WishListController::class, 'clearWishlist']);
+
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/wishlist/add', [WishListController::class, 'addToWishlist']);
-    Route::get('/wishlist', [WishListController::class, 'getWishlist']);
-    // Route::get('/wishlist/{id}', [WishListController::class, 'getWishlistById']);
-    Route::delete('/wishlist/remove/{id}', [WishListController::class, 'removeWishlistById']);
-    Route::delete(('/wishlist/clear'), [WishListController::class, 'clearWishlist']);
+
+Route::group(['prefix' => 'customer', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
+    Route::patch('/update_information', [CustomerController::class, 'customerUpdateInformation']);
+});
+
+
+
+Route::middleware(['auth:sanctum', 'isAdmin'])->get('/admin', function () {
+    return 'Hello Admin';
+});
+Route::middleware(['auth:sanctum', 'isCustomer'])->get('/customer', function () {
+    return 'Hello Customer';
 });

@@ -10,7 +10,7 @@ class UserController
 
     public function listAllUsers()
     {
-        $users = User::all();
+        $users = User::where('role', '!=', 'admin')->get();
         if ($users->isEmpty()) {
             return response()->json(['message' => 'No users found'], 404);
         }
