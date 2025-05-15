@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('google_id')->nullable(true)->unique();
+        Schema::table('coupon_users', function (Blueprint $table) {
+            $table->integer('limit')->default(1)->after('coupon_id');
+            $table->integer('used')->default(0)->after('limit');
         });
     }
 
@@ -21,8 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('google_id');
+        Schema::table('coupon_users', function (Blueprint $table) {
+             $table->dropColumn(['limit', 'used']);
+            //
         });
     }
 };

@@ -195,4 +195,29 @@ class BookController extends Controller
 
         return response()->json($books);
     }
+
+    public function reStock(Request $request, $bookId){
+
+        $validated =  $request ->validate([
+            'quantity' => 'nullable|integer|min:0',
+        ]);
+
+        $book = Book::find($bookId);
+
+        if(!$book) {
+            return response()->json([
+                "message"=> "Book not found !"
+            ]);
+        }
+
+        $book->quantity += $validated['quantity'];
+        $book->save();
+
+        return response()->json([
+            "message"=> "Re-Stock successfully !",
+            "book_id" => $bookId,
+            "quantity"=> $book->quantity
+        ]);
+
+    }
 }

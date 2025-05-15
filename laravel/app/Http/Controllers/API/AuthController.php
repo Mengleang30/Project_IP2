@@ -50,7 +50,7 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
-            'phone' => 'nullable|string|default:NULL',
+            'phone' => 'nullable|string',
             'password' => 'required|string|min:8',
             'role' => 'required|in:admin,customer',
         ]);
@@ -60,7 +60,7 @@ class AuthController extends Controller
                 'message' => 'Password must be at least 8 characters long',
             ], 422);
         }
-        
+
         // check if the email already exists
         $existingUser = User::where('email', $validated['email'])->first();
         if ($existingUser) {

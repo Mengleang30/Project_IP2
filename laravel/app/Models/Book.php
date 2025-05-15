@@ -4,11 +4,12 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Testing\Fluent\Concerns\Has;
 
 class Book extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
         'title',
         'author',
@@ -22,6 +23,8 @@ class Book extends Model
         'path_image',
         'description',
     ];
+    protected $dates = ['deleted_at'];
+
 
     protected $casts = [
         'languages' => 'array',

@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('coupons', function (Blueprint $table) {
+        Schema::create('coupon_customer', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
-            $table->decimal('discount', 8, 2);
-            $table->date('start_date');
-            $table->date('end_date');
-            $table->integer('usage_limit')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->bigInteger('user_id')->constrained('users')->onDelete('cascade');
+            $table->bigInteger('coupon_id')->constrained('coupons')->onDelete('cascade');
+            $table->integer("used_times")->default(0);
+            $table->integer('limit')->default(1);
             $table->timestamps();
         });
     }
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('coupons');
+        Schema::dropIfExists('coupon_customer');
     }
 };

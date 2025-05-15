@@ -9,8 +9,10 @@ use App\Http\Controllers\Password\PasswordController;
 use App\Http\Controllers\User\AdminController;
 use App\Http\Controllers\User\CustomerController;
 use App\Http\Controllers\WishListController;
-
-
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CouponController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PayController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -49,6 +51,7 @@ Route::group(['prefix' => 'books'], function () {
     Route::get('/search', [BookController::class, 'searchBooks']);
     Route::get('/show_books', [BookController::class, 'showBooks']);
     Route::get('/filter_by_category', [BookController::class, 'filterBooksByCategory']);
+
 });
 
 // group of /api/categories
@@ -58,10 +61,21 @@ Route::group(['prefix' => 'categories'], function () {
 
 });
 
-Route::group(['prefix' => '/customer/cart', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
+Route::group(['prefix' => '/customer/carts', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
     Route::post('/add', [CartController::class, 'addToCart']);
     Route::get('/', [CartController::class, 'getCart']);
+    Route::patch('/update/{id}', [CartController::class, 'updateQuantity']);
     Route::delete('/delete/{id}', [CartController::class, 'deleteCartBook']);
+    Route::delete('/clear', [CartController::class, 'clearCart']);
+    Route::post('/checkout', [CheckoutController::class, 'checkout']);
+    Route::post('/checkout/pay', [PayController::class, 'pay']);
+});
+
+Route::group(['prefix' => '/customer/orders', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
+   Route::get('/', [OrderController::class, 'listOrders']);
+   Route::post('/apply_coupon/{order_id}', [CouponController::class, "applyCoupon"]);
+   Route::get('/all', [OrderController::class, 'listAllOrders']);
+   Route::post('/cancel/{orderId}', [OrderController::class, 'cancelOrder']);
 });
 
 
@@ -71,12 +85,20 @@ Route::group(['prefix' => '/admin/books', 'middleware' => ['auth:sanctum', 'isAd
     Route::post('/', [BookController::class, 'createBooks']);
     Route::patch('/{id}', [BookController::class, 'updateBooks']);
     Route::delete('/{id}', [BookController::class, 'deleteBooks']);
+    Route::post('/re_stock/{book_id}', [BookController::class, 'reStock']);
 });
 // Admin-only category routes
 Route::group(['prefix' => 'admin/categories', 'middleware' => ['auth:sanctum', 'isAdmin']], function () {
     Route::post('/', CategoryController::class . '@createCategory');
     Route::patch('/{id}', CategoryController::class . '@updateCategory');
     Route::delete('/{id}', CategoryController::class . '@deleteCategory');
+});
+
+Route::group(['prefix' => 'admin/coupons', 'middleware' => ['auth:sanctum', 'isAdmin']], function () {
+    Route::post('/add', [CouponController::class, "createCoupon"]);
+    Route::post('/action/{coupon_id}', [CouponController::class, "actionCoupon"]);
+    Route::get('/', [CouponController::class, "listCoupons"]);
+
 });
 
 

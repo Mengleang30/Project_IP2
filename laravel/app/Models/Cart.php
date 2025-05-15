@@ -12,6 +12,8 @@ class Cart extends Model
     protected $fillable = [
         'user_id',
     ];
+    protected $dates = ['deleted_at'];
+
 
     // Relationships
     public function user()

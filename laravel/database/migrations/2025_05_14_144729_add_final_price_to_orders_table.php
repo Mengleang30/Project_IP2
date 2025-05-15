@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('google_id')->nullable(true)->unique();
+        Schema::table('orders', function (Blueprint $table) {
+            $table->decimal('final_price', 10, 2)->nullable()->after('total_price');
         });
     }
 
@@ -21,8 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('google_id');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn('final_price');
+            //
         });
     }
 };

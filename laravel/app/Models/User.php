@@ -9,13 +9,14 @@ use App\Models\Wishlist;
 use App\Models\Payment;
 use App\Models\CouponUser;
 use App\Models\Transaction;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 
 class User extends Model
 {
-    use HasApiTokens , HasFactory, Notifiable;
+    use HasApiTokens , HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -23,7 +24,10 @@ class User extends Model
         'phone',
         'password',
         'role',
+        'google_id',
     ];
+    protected $dates = ['deleted_at'];
+
 
     protected $hidden = [
         'password',
@@ -46,9 +50,15 @@ class User extends Model
     {
         return $this->hasMany(Payment::class);
     }
-    public function couponUsers()
+    // public function couponUsers()
+    // {
+    //     return $this->hasMany(CouponUser::class);
+    // }
+    public function coupons()
     {
-        return $this->hasMany(CouponUser::class);
+        return $this->belongsToMany(Coupon::class, 'coupon_customers')
+            ->withPivot('used_times', 'limit')
+            ->withTimestamps();
     }
     public function transactions()
     {

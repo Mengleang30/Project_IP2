@@ -1,5 +1,7 @@
 FROM php:8.2-fpm
 
+
+
 # Install system dependencies
 RUN apt update && apt install -y unzip curl git nodejs npm libzip-dev
 

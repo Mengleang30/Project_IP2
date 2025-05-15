@@ -15,6 +15,8 @@ class CartBook extends Model
         'price',
 
     ];
+    protected $dates = ['deleted_at'];
+
 
     // Relationships
     public function cart()
