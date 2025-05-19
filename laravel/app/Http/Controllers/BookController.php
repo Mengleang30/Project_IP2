@@ -38,13 +38,16 @@ class BookController extends Controller
             'quantity' => 'nullable|integer|min:0',
             'price' => 'required|numeric|min:0',
             'url_image' => 'nullable|url',
-            'path_image' => 'nullable|string',
+            'path_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'languages' => 'nullable|array',
             'category_id' => 'required|exists:categories,id',
 
         ]);
 
-
+        if( $request->hasFile('path_image')) {
+            // This stores under storage/app/public/book_images/
+            $imagePath = $request->file('path_image')->store('book_images', 'public');
+        }
 
         $book = Book::create([
             'title' => $request->title,
@@ -55,7 +58,7 @@ class BookController extends Controller
             'quantity' => $request->quantity,
             'price' => $request->price,
             'url_image' => $request->url_image,
-            'path_image' => $request->path_image,
+            'path_image' => $imagePath,
             'languages' => json_encode($request->languages),
             'category_id' => $request->category_id,
         ]);
@@ -79,11 +82,17 @@ class BookController extends Controller
             'quantity' => 'nullable|integer|min:0',
             'price' => 'required|numeric|min:0',
             'url_image' => 'nullable|url',
-            'path_image' => 'nullable|string',
+            'path_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'languages' => 'nullable|array',
             'category_id' => 'required|exists:categories,id',
 
         ]);
+
+        if( $request->hasFile('path_image')) {
+            // This stores under storage/app/public/book_images/
+            $imagePath = $request->file('path_image')->store('book_images', 'public');
+        }
+
         $book->update([
             'title' => $request->title,
             'author' => $request->author,
@@ -93,7 +102,7 @@ class BookController extends Controller
             'quantity' => $request->quantity,
             'price' => $request->price,
             'url_image' => $request->url_image,
-            'path_image' => $request->path_image,
+            'path_image' => $imagePath,
             'languages' => json_encode($request->languages),
             'category_id' => $request->category_id,
         ]);

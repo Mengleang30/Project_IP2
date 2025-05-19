@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
 use App\Models\Order;
+use App\Models\OrderBook;
 use Illuminate\Http\Request;
 
 use function PHPUnit\Framework\isEmpty;
@@ -40,6 +42,17 @@ class OrderController
          if (!$order) {
               return response()->json(['message' => 'Order not found or cannot be canceled'], 404);
          }
+
+            // Restore the quantity of books in stock
+        $orderBooks = OrderBook::where('order_id', $order->id)->get();
+        foreach ($orderBooks as $orderBook) {
+            $book = Book::find($orderBook->book_id);
+            if ($book) {
+                // Return quantity back to book stock
+                $book->quantity += $orderBook->quantity;
+                $book->save();
+            }
+        }
 
          $order->status = 'canceled';
          $order->save();

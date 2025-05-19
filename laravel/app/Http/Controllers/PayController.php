@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Transaction;
+use App\Notifications\PaymentSuccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -96,7 +97,7 @@ class PayController
 
             return response()->json([
                 'message' => 'Payment successful',
-                // 'paymentDetails' => $paymentData, // Include necessary details
+                'paymentDetails' => $paymentData, // Include necessary details
             ]);
         }
 
@@ -119,8 +120,11 @@ class PayController
             "total_price"=>$order->final_price,
         ]);
 
+        // send notification to user
+
+        $user->notify(new PaymentSuccess($order));
 
         return response()->json(['message' => 'Payment successful'
-         ,201]);
+    ],201);
     }
 }

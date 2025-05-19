@@ -13,6 +13,8 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PayController;
+use App\Http\Controllers\TestController;
+use App\Http\Controllers\UserNotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -151,6 +153,15 @@ Route::group(['prefix' => 'customer', 'middleware' => ['auth:sanctum', 'isCustom
     Route::patch('customer/update_information', [CustomerController::class, 'customerUpdateInformation']);
 });
 
+Route::group(['prefix' => '/customer/notifications', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
+    Route::get('/', [UserNotificationController::class, 'testGetNotification'])->middleware('auth:sanctum' , );
+
+});
+
+Route::group(['prefix' => '/admin/notifications', 'middleware' => ['auth:sanctum', 'isAdmin']], function () {
+    Route::get('/', [UserNotificationController::class, 'AdminGetNotification'])->middleware('auth:sanctum' , );
+
+});
 
 
 Route::middleware(['auth:sanctum', 'isAdmin'])->get('/admin', function () {

@@ -7,6 +7,8 @@ use App\Models\Cart;
 use App\Models\CartBook;
 use App\Models\Order;
 use App\Models\OrderBook;
+use App\Models\User;
+use App\Notifications\LowStockAlert;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -56,6 +58,16 @@ class CartController extends Controller
         // Update the book's quantity in stock
         $book->quantity -= $validated['quantity'];
         $book->save();
+
+        $lowStockThreshold = 4;
+
+        if($book->quantity <= $lowStockThreshold) {
+           $admin = User::where('role', 'admin')->first();
+           if ($admin) {
+               $admin->notify(new LowStockAlert($book));
+           }
+
+        }// Define your low stock threshold
 
         $subTotalPrice = $existingCartBook->quantity * $book->price;
 
@@ -153,6 +165,17 @@ class CartController extends Controller
         if (!$cart) {
             return response()->json(['message' => 'Cart not found'], 404);
         }
+        // Get all CartBooks of this cart
+        $cartBooks = CartBook::where('cart_id', $cart->id)->get();
+
+        foreach ($cartBooks as $cartBook) {
+            $book = Book::find($cartBook->book_id);
+            if ($book) {
+                // Return quantity back to book stock
+                $book->quantity += $cartBook->quantity;
+                $book->save();
+            }
+        }
 
         // Delete all cart books
         CartBook::where('cart_id', $cart->id)->delete();
@@ -160,5 +183,5 @@ class CartController extends Controller
         return response()->json(['message' => 'Cart cleared successfully']);
     }
 
-   
+
 }
