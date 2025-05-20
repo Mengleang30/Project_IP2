@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Password;
 
 use App\Models\User;
+use App\Notifications\securityAlert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon as SupportCarbon;
 use Illuminate\Support\Facades\DB;
@@ -23,21 +24,24 @@ class PasswordController
         };
 
         $code = random_int(10000000, 99999999); // Ensure this generates an 8-digit code
+        $hashCode = Hash::make($code);
 
 
-
+        // save the code to the database
         DB::table('password_resets')->updateOrInsert(
             ['email' => $request->email],
             [
-                'token' => $code,
+                'token' => $hashCode,
                 'created_at' => SupportCarbon::now(),
             ]
         );
+
+        // Send the code to the user's email
         Mail::raw(
             "Hello {$user->name},\n\n" .
             "We have received a request to reset your password. To reset your password, please use the following code:\n\n" .
             "Reset Code: $code\n\n" .
-            "This code will expire in 5 minutes, so please use it as soon as possible.\n\n" .
+            "This code will expire in 10 minutes, so please use it as soon as possible.\n\n" .
             "If you did not request a password reset, please ignore this message.\n\n" .
             "Thank you,\n" .
             "The Support Team",
@@ -60,12 +64,16 @@ class PasswordController
         'new_password' => 'required|min:8|confirmed',
     ]);
 
+    // Check if the code is valid and not expired
     $reset = DB::table('password_resets')
         ->where('email', $request->email)
-        ->where('token', $request->code)
         ->first();
 
-    if (!$reset || SupportCarbon::parse($reset->created_at)->addMinutes(5)->isPast()) {
+    if (!$reset) {
+        return response()->json(['message' => 'Reset request not found'], 404);
+    }
+
+    if (!$reset || SupportCarbon::parse($reset->created_at)->addMinutes(10)->isPast()) {
         return response()->json(['message' => 'Invalid or expired code'], 400);
     }
 
@@ -73,11 +81,17 @@ class PasswordController
     if (!$user) {
         return response()->json(['message' => 'User not found'], 404);
     }
+
+    // update password
     $user->password = Hash::make($request->new_password);
     $user->save();
 
 
     DB::table('password_resets')->where('email', $request->email)->delete();
+
+    // Notify the user about the password change
+     $user->notify(new securityAlert($user));
+
 
     return response()->json(['message' => 'Password has been reset successfully']);
    }

@@ -43,6 +43,7 @@ Route::get('/logged_user', function (Request $request) {
 
 Route::post('/password/forgot', [PasswordController::class, 'sendResetCode']);
 Route::post('/password/reset', [PasswordController::class, 'resetPassword']);
+
 // group of /api/books
 Route::group(['prefix' => 'books'], function () {
     Route::get('/', 'App\Http\Controllers\BookController@listAllBooks');
@@ -71,6 +72,7 @@ Route::group(['prefix' => '/customer/carts', 'middleware' => ['auth:sanctum', 'i
     Route::delete('/clear', [CartController::class, 'clearCart']);
     Route::post('/checkout', [CheckoutController::class, 'checkout']);
     Route::post('/checkout/pay', [PayController::class, 'pay']);
+    Route::get('/paypal/capture', [PayController::class, 'capturePayment'])->name('paypal.capture');
 });
 
 Route::group(['prefix' => '/customer/orders', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
@@ -149,17 +151,26 @@ Route::group(['prefix' => '/customer/wishlist', 'middleware' => ['auth:sanctum',
 });
 
 
-Route::group(['prefix' => 'customer', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
-    Route::patch('customer/update_information', [CustomerController::class, 'customerUpdateInformation']);
+Route::group(['prefix' => '/customer', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
+    Route::patch('/update_information', [CustomerController::class, 'customerUpdateInformation']);
+    Route::patch('/upload_picture', [CustomerController::class, 'uploadProfilePicture']);
+    Route::delete('/delete_account', [CustomerController::class, 'customerDeleteAccount']);
+    Route::post('/upload_picture', [CustomerController::class, 'uploadProfilePicture']);
+
+
 });
 
 Route::group(['prefix' => '/customer/notifications', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
-    Route::get('/', [UserNotificationController::class, 'testGetNotification'])->middleware('auth:sanctum' , );
+    Route::get('/', [UserNotificationController::class, 'GetNotification'])->middleware('auth:sanctum' , );
+    Route::patch('/mark_as_read/{id}', [UserNotificationController::class, 'markNotificationAsRead']);
+    Route::patch('/mark_all_as_read', [UserNotificationController::class, 'markAllNotificationsAsRead']);
 
 });
 
 Route::group(['prefix' => '/admin/notifications', 'middleware' => ['auth:sanctum', 'isAdmin']], function () {
     Route::get('/', [UserNotificationController::class, 'AdminGetNotification'])->middleware('auth:sanctum' , );
+    Route::patch('/mark_as_read/{id}', [UserNotificationController::class, 'markNotificationAsRead']);
+    Route::patch('/mark_all_as_read', [UserNotificationController::class, 'markAllNotificationsAsRead']);
 
 });
 

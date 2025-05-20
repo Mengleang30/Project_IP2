@@ -6,6 +6,7 @@ use App\Models\Book;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
 {
@@ -43,6 +44,8 @@ class BookController extends Controller
             'category_id' => 'required|exists:categories,id',
 
         ]);
+
+        $imagePath = null;
 
         if( $request->hasFile('path_image')) {
             // This stores under storage/app/public/book_images/
@@ -116,6 +119,11 @@ class BookController extends Controller
         if (!$book) {
             return response()->json(['message' => 'Book not found'], 404);
         }
+
+        if($book->path_image && Storage::disk('public')->exists($book->path_image)) {
+            Storage::disk('public')->delete($book->path_image);
+        }
+
         $book->delete();
         return response()->json(['message' => 'Book deleted successfully'], 200);
     }
