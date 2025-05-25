@@ -71,6 +71,10 @@ class User extends Model
 {
     return $this->hasMany(Wishlist::class);
 }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 
 
     // relationship with books for review

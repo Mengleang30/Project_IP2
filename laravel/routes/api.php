@@ -10,6 +10,7 @@ use App\Http\Controllers\User\AdminController;
 use App\Http\Controllers\User\CustomerController;
 use App\Http\Controllers\WishListController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PayController;
@@ -54,6 +55,7 @@ Route::group(['prefix' => 'books'], function () {
     Route::get('/search', [BookController::class, 'searchBooks']);
     Route::get('/show_books', [BookController::class, 'showBooks']);
     Route::get('/filter_by_category', [BookController::class, 'filterBooksByCategory']);
+    Route::get('get_comments/{bookId}', [CommentController::class, 'getComments']);
 
 });
 
@@ -80,6 +82,11 @@ Route::group(['prefix' => '/customer/orders', 'middleware' => ['auth:sanctum', '
    Route::post('/apply_coupon/{order_id}', [CouponController::class, "applyCoupon"]);
    Route::get('/all', [OrderController::class, 'listAllOrders']);
    Route::post('/cancel/{orderId}', [OrderController::class, 'cancelOrder']);
+});
+
+
+Route::group(['prefix' => '/customer/comments', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
+    Route::post('/{bookId}', [CommentController::class , 'addComment']);
 });
 
 
