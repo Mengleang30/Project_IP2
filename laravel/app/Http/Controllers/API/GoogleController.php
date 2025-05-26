@@ -3,19 +3,16 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\User;
-use Illuminate\Http\Request;
+
 use Laravel\Socialite\Facades\Socialite;
-use Google_Client;
-use Google_Service_Oauth2; // Add this if you need additional Google services
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use Str;
 
 class GoogleController
 {
   // Redirect to Google OAuth
   public function redirectToGoogle()
   {
-      return Socialite::driver('google')->redirect();
+      return Socialite::driver('google')->stateless()->redirect();
   }
 
   // Handle Google Callback
@@ -23,28 +20,50 @@ class GoogleController
   {
       try {
           // Get user info from Google using stateless mode
-          $googleUser = Socialite::driver('google')->user();
 
+
+      $googleUser = Socialite::driver('google')->stateless()->user();
           // Check if user exists
-          $user = User::where('google_id', $googleUser->getId())->first();
+      $user = User::where('google_id', $googleUser->getId())->first();
 
           if (!$user) {
-              // If user doesn't exist, create a new one
-              $user = User::create([
-                  'name' => $googleUser->getName(),
-                  'email' => $googleUser->getEmail(),
-                  'google_id' => $googleUser->getId(),
-                  'avatar' => $googleUser->getAvatar(),
-              ]);
-          }
+            // If not found by google_id, try to find by email
+            $user = User::where('email', $googleUser->getEmail())->first();
+
+            if ($user) {
+                // User found by email, update google_id if missing
+                if (!$user->google_id) {
+                    $user->google_id = $googleUser->getId();
+                    $user->name->$googleUser->getName();
+                    $user->save();
+                }
+            } else {
+                // No user with this email, create new one
+                $user = User::create([
+                    'name' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'google_id' => $googleUser->getId(),
+                    'password' => bcrypt(Str::random(16)),
+                    'picture' => $googleUser->getAvatar(),
+                ]);
+            }
+        }
+
+
 
           // Generate API token for the user
-          $token = $user->createToken()->accessToken;
+          $token = $user->createToken('GoogleLogin')->plainTextToken;
+
+          return redirect()->to("http://localhost:5173/auth/google/callback?token=$token");
 
           return response()->json(['token' => $token]);
 
       } catch (\Exception $e) {
-          return response()->json(['error' => 'Something went wrong.'], 400);
-      }
-  }
+        \Log::error('Google login error: ' . $e->getMessage());
+        return response()->json([
+            'error' => 'Something went wrong.',
+            'message' => $e->getMessage()
+        ], 400);
+  }}
+
 }

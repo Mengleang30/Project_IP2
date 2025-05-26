@@ -52,7 +52,7 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users,email',
             'phone' => 'nullable|string',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:admin,customer',
+            // 'role' => 'required|in:admin,customer',
         ]);
 
         if (strlen($validated['password']) < 8) {
@@ -74,7 +74,7 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'phone' => $validated['phone'],
             'password' => bcrypt($validated['password']),
-            'role' => $validated['role'],
+            // 'role' => $validated['role'],
         ]);
         return response()->json([
             'message' => 'User created successfully',

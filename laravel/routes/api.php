@@ -28,21 +28,23 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::post('/register', [AuthController::class, 'register']);
 
 
+
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
 
 
-Route::get('login/google', [GoogleController::class, 'redirectToGoogle']);
-Route::get('login/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+
+Route::get('auth/google/redirect', [GoogleController::class, 'redirectToGoogle']);
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 // check if the user is logged in
 Route::get('/logged_user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('/password/forgot', [PasswordController::class, 'sendResetCode']);
+Route::post('/password/forgot', [PasswordController::class, 'sendResetCode'])->middleware('throttle:1,0.5');
 Route::post('/password/reset', [PasswordController::class, 'resetPassword']);
 
 // group of /api/books
