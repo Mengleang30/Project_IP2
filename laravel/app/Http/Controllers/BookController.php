@@ -12,13 +12,14 @@ class BookController extends Controller
 {
     public function listAllBooks()
     {
-        return Book::all();
+        $books =  Book::with('category')->get();
+        return response()->json($books);
     }
 
     public function listBookById($id)
     {
         // Logic to get a single book by ID
-        $book =  Book::find($id);
+        $book =  Book::with('category')->find($id);
 
         if ($book) {
             return response()->json($book);
@@ -65,6 +66,7 @@ class BookController extends Controller
             'languages' => json_encode($request->languages),
             'category_id' => $request->category_id,
         ]);
+        // $book->categories()->attach($request->category_id);
         return response()->json($book, 201);
     }
 
@@ -137,6 +139,28 @@ class BookController extends Controller
         return response()->json($books);
     }
 
+   public function listBookByCategoryName()
+{
+    $categories = Category::with(['books'=>function($query){
+        $query->take(8);
+    }])->get();
+
+    if ($categories->isEmpty()) {
+        return response()->json(['message' => 'No categories found'], 404);
+    }
+
+    // Transform each category to return only name and books
+    $result = $categories->map(function ($category) {
+        return [
+            'category_name' => $category->name,
+            'books' => $category->books,
+        ];
+    });
+
+    return response()->json($result);
+}
+
+
     public function groupBooksByCategory()
     {
         $categories = Category::with('books')->get();
@@ -158,39 +182,39 @@ class BookController extends Controller
 
     public function filterByDiscount()
     {
-        $books = Book::where('discount', '>', 20)->get();
+        $books = Book::where('discount', '>', 14)->get();
 
         return response()->json($books);
     }
 
     public function searchBooks(Request $request)
     {
-
         $query = $request->input('query');
 
-        if(empty($query)) {
+        if (empty($query)) {
             return response()->json(['message' => 'Please search somethings'], 400);
         }
 
-        $books = Book::where('title', 'like','%' . $query . '%')
+        $books = Book::where('title', 'like', '%' . $query . '%')
             ->orWhere('author', 'like', '%' . $query . '%')
             ->orWhere('description', 'like', '%' . $query . '%')
+            ->orWhereHas('category', function ($q) use ($query) {
+                $q->where('name', 'like', '%' . $query . '%');
+            })
             ->get();
-
-        // Check if any books were found
 
         if ($books->isEmpty()) {
             return response()->json([
                 'query' => $query,
                 'message' => 'No books found'
-                ], 404);
+            ], 404);
         }
         return response()->json($books);
     }
 
     public function ShowBooks() {
 
-        $books = Book::inRandomOrder()->limit(30)->get();
+        $books = Book::inRandomOrder()->limit(2)->get();
         return response()->json($books);
 
     }

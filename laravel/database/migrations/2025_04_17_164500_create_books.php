@@ -21,7 +21,7 @@ return new class extends Migration
             $table->decimal('discount', 5, 2)->default(0);
             $table->integer('quantity')->default(0);
             $table->string('url_image')->nullable();
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->string('path_image')->nullable();
             $table->json('languages')->nullable();
             $table->timestamps();

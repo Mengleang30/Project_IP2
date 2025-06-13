@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Comment;
+use App\Models\User;
+use App\Notifications\Feedback;
 use Illuminate\Http\Request;
 
 class CommentController
@@ -29,6 +31,15 @@ class CommentController
             'comment' => $req['comment'],
         ]);
 
+
+
+       $admin = User::where('role', 'admin')->first();
+           if ($admin) {
+               $admin->notify(new Feedback(
+                $bookId,
+                $user->id,
+                $req['comment']));
+           }
         return response()->json(['message' => 'Comment added successfully',
                                 "username"=> $user->name], 201);
     }
@@ -40,6 +51,18 @@ class CommentController
             ->orderBy('created_at', 'desc')
             ->get(['id', 'book_id', 'user_id', 'comment', 'created_at']);
 
-        return response()->json($comments);
+        // Map comments to include username
+        $commentsWithUser = $comments->map(function ($comment) {
+            return [
+            'id' => $comment->id,
+            'book_id' => $comment->book_id,
+            'user_id' => $comment->user_id,
+            'comment' => $comment->comment,
+            'created_at' => $comment->created_at,
+            'username' => $comment->user ? $comment->user->name : null,
+            ];
+        });
+
+        return response()->json($commentsWithUser);
     }
 }

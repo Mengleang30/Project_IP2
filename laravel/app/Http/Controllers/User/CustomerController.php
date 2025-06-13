@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use SebastianBergmann\CodeUnit\FunctionUnit;
 
 class CustomerController extends Controller
 {
@@ -64,7 +65,7 @@ class CustomerController extends Controller
     public function uploadProfilePicture(Request $request)
     {
         $request->validate([
-            'picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'picture' => 'required|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         $user = $request->user();
@@ -80,6 +81,28 @@ class CustomerController extends Controller
         $user->update(['picture' => $path]);
 
         return response()->json(['message' => 'Profile picture uploaded successfully', 'path' => $path], 200);
+    }
+
+    public function updateInformation(Request $request){
+         $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:15',
+            'description'=>'nullable|string',
+            'address'=>'nullable|string',
+        ]);
+
+        $user = $request->user();
+
+        $user->update([
+            'name'=> $validated['name'],
+            'phone'=> $validated['phone'],
+            'description'=> $validated['description'],
+            'address'=> $validated['address'],
+        ]);
+
+        response()->json([
+            "message"=>"The profile updated successfully !"
+        ]);
     }
 
 

@@ -23,6 +23,8 @@ class CheckoutController
         return response()->json(['message' => 'Cart is empty'], 400);
     }
 
+
+
     // Start a transaction
     DB::beginTransaction();
 
@@ -35,33 +37,36 @@ class CheckoutController
     }
 
     try {
-        $total = 0;
+        // $total = 0;
         $order = Order::create([
             'user_id' => $user->id,
-            'total_price' => 0,
+            'total_price' => $cart->grand_total,
             'status' => 'pending',
         ]);
 
         foreach ($cart->cartBooks as $cartBook) {
             $book = $cartBook->book;
-            $price = $book->price;
+            // $price = $cartBook->price;
             $quantity = $cartBook->quantity;
-            $total += $price * $quantity;
+            // $total += $price * $quantity;
 
             OrderBook::create([
                 'order_id' => $order->id,
                 'book_id' => $book->id,
                 'quantity' => $quantity,
-                'price' => $price,
+                'price' => $cartBook->price,
+                'sub_total'=>$cartBook->sub_total
             ]);
         }
 
-        $order->total_price = $total;
+        $order->total_price = $cart->grand_total;
         $order->save();
 
         // Clear the cart
         CartBook::where('cart_id', $cart->id)->delete();
 
+        $cart->grand_total = 0;
+        $cart->save();
         // save is all change is  fine
         DB::commit();
 

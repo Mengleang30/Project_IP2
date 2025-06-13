@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\Cart;
 use App\Models\CartBook;
-use App\Models\Order;
-use App\Models\OrderBook;
+
 use App\Models\User;
 use App\Notifications\LowStockAlert;
 use Illuminate\Http\Request;
@@ -32,19 +31,22 @@ class CartController extends Controller
             return response()->json(['message' => 'Not enough stock available'], 400);
         }
 
-
-
         $cart = Cart::firstOrCreate([
             'user_id' => $user->id,
         ]);
+
+        $finalPrice = $book->price * (1 - ($book->discount / 100));
 
         // Check if the book already exists in the cart
         $existingCartBook = CartBook::where('cart_id', $cart->id)
             ->where('book_id', $book->id)
             ->first();
+
         if ($existingCartBook) {
             // Update quantity and total price
             $existingCartBook->quantity += $validated['quantity'];
+            $existingCartBook->sub_total = $existingCartBook->quantity * $finalPrice;
+            $existingCartBook->price = $finalPrice;
             $existingCartBook->save();
         } else {
             // Create new cart book
@@ -52,7 +54,8 @@ class CartController extends Controller
                 'cart_id' => $cart->id,
                 'book_id' => $book->id,
                 'quantity' => $validated['quantity'],
-                'price' => $book->price,
+                'price' => $finalPrice,
+                'sub_total' => $validated['quantity'] * $finalPrice,
             ]);
         }
         // Update the book's quantity in stock
@@ -66,16 +69,13 @@ class CartController extends Controller
            if ($admin) {
                $admin->notify(new LowStockAlert($book));
            }
+        }
 
-        }// Define your low stock threshold
-
-        $subTotalPrice = $existingCartBook->quantity * $book->price;
-
-
+        $cart->grand_total = CartBook::where('cart_id', $cart->id)->sum('sub_total');
+        $cart->save();
         return response()->json([
             'message' => 'Book added to cart successfully',
             'cart_book' => $existingCartBook,
-            'sub_total_price' => $subTotalPrice,
         ], 201);
     }
 
@@ -103,8 +103,14 @@ class CartController extends Controller
         $book->quantity -= ($validated['quantity'] - $cartBook->quantity);
         $book->save();
 
+        $cart = Cart::find($cartBook->cart_id);
+        if ($cart) {
+            $cart->grand_total = CartBook::where('cart_id', $cart->id)->sum('sub_total');
+            $cart->save();
+        }
         // Update cart book quantity
         $cartBook->quantity = $validated['quantity'];
+        $cartBook->sub_total= ($validated['quantity'] * $cartBook->price);
         $cartBook->save();
 
         return response()->json(['message' => 'Cart book quantity updated successfully']);
@@ -123,6 +129,8 @@ class CartController extends Controller
         if (!$cart) {
             return response()->json(['message' => 'Cart not found'], 404);
         }
+        $cart->grand_total = $cart->cartBooks->sum('sub_total');
+        $cart->save();
 
         return response()->json($cart);
     }
@@ -146,6 +154,11 @@ class CartController extends Controller
             $book->save();
         }
 
+        $cart = Cart::find($cartBookId);
+        if ($cart) {
+            $cart->grand_total = CartBook::where('cart_id', $cart->id)->sum('sub_total');
+            $cart->save();
+        }
         $cartBook->delete();
 
         return response()->json(['message' => 'Cart book deleted successfully']);
@@ -177,9 +190,12 @@ class CartController extends Controller
             }
         }
 
+
         // Delete all cart books
         CartBook::where('cart_id', $cart->id)->delete();
 
+        $cart->grand_total = 0;
+        $cart->save();
         return response()->json(['message' => 'Cart cleared successfully']);
     }
 

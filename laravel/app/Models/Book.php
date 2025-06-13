@@ -35,10 +35,14 @@ class Book extends Model
 
 
     // Relationships
-    public function categories()
-    {
-        return $this->belongsToMany(Category::class, 'book_categories', 'book_id', 'category_id');
+    // public function categories()
+    // {
+    //     return $this->belongsToMany(Category::class, 'book_categories', 'book_id', 'category_id');
+    // }
+    public function category(){
+        return $this->belongsTo(Category::class);
     }
+
     public function transactions()
     {
         return $this->hasMany(Transaction::class);

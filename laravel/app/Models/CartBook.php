@@ -13,6 +13,7 @@ class CartBook extends Model
         'book_id',
         'quantity',
         'price',
+        'sub_total'
 
     ];
     protected $dates = ['deleted_at'];

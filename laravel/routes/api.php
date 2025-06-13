@@ -58,6 +58,7 @@ Route::group(['prefix' => 'books'], function () {
     Route::get('/show_books', [BookController::class, 'showBooks']);
     Route::get('/filter_by_category', [BookController::class, 'filterBooksByCategory']);
     Route::get('get_comments/{bookId}', [CommentController::class, 'getComments']);
+    Route::get('/list_category_name',[BookController::class,  'listBookByCategoryName']);
 
 });
 
@@ -75,15 +76,22 @@ Route::group(['prefix' => '/customer/carts', 'middleware' => ['auth:sanctum', 'i
     Route::delete('/delete/{id}', [CartController::class, 'deleteCartBook']);
     Route::delete('/clear', [CartController::class, 'clearCart']);
     Route::post('/checkout', [CheckoutController::class, 'checkout']);
-    Route::post('/checkout/pay', [PayController::class, 'pay']);
-    Route::get('/paypal/capture', [PayController::class, 'capturePayment'])->name('paypal.capture');
+
 });
 
 Route::group(['prefix' => '/customer/orders', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
    Route::get('/', [OrderController::class, 'listOrders']);
    Route::post('/apply_coupon/{order_id}', [CouponController::class, "applyCoupon"]);
    Route::get('/all', [OrderController::class, 'listAllOrders']);
-   Route::post('/cancel/{orderId}', [OrderController::class, 'cancelOrder']);
+   Route::delete('/cancel/{orderId}', [OrderController::class, 'cancelOrder']);
+   Route::post('/checkout/pay', [PayController::class, 'pay']);
+   Route::get('/capture-payment', [PayController::class, 'capturePayment'])->name('paypal.capture');
+});
+
+
+Route::middleware(['auth:sanctum','isCustomer'])->group(function () {
+    Route::post('/pay', [PayController::class, 'pay']);
+    Route::get('/capture-payment', [PayController::class, 'capturePayment']);
 });
 
 
@@ -162,11 +170,10 @@ Route::group(['prefix' => '/customer/wishlist', 'middleware' => ['auth:sanctum',
 
 Route::group(['prefix' => '/customer', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
     Route::patch('/update_information', [CustomerController::class, 'customerUpdateInformation']);
-    Route::patch('/upload_picture', [CustomerController::class, 'uploadProfilePicture']);
+    // Route::patch('/upload_picture', [CustomerController::class, 'uploadProfilePicture']);
     Route::delete('/delete_account', [CustomerController::class, 'customerDeleteAccount']);
     Route::post('/upload_picture', [CustomerController::class, 'uploadProfilePicture']);
-
-
+    Route::patch('/update_inform', [CustomerController::class, 'updateInformation']);
 });
 
 Route::group(['prefix' => '/customer/notifications', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
