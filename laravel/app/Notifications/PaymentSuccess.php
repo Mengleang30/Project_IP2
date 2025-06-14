@@ -36,12 +36,12 @@ class PaymentSuccess extends Notification
     {
         return (new MailMessage)
             ->subject('Payment was successful! ')
-            ->greeting('Hello ' . $this->user . ' !')
+            ->greeting('Hello ' . $this->user->name . ' !')
             ->line("Order_ID:  {$this->order->id} ")
             ->line("Date:  " . $this->payment->created_at->format('d-m-Y H:i:s') . " ")
             ->line("Payment_Method:  {$this->payment->payment_method} ")
             ->line("Transaction_ID:  {$this->payment->transaction_id} ")
-            ->action('View Your Order', url('http://localhost:5173/history'))
+            ->action('View Your Order', url('https://e-commerce-book-store.up.railway.app/history'))
             ->line('Thank you for your purchase.!')
             ->salutation('Best regards, Books Store');
     }
