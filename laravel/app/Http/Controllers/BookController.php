@@ -50,7 +50,7 @@ class BookController extends Controller
 
         if( $request->hasFile('path_image')) {
             // This stores under storage/app/public/book_images/
-            $imagePath = $request->file('path_image')->store('book_images', 'public');
+            $imagePath = $request->file('path_image')->store('book_images', 'minio');
         }
 
         $book = Book::create([
@@ -93,10 +93,11 @@ class BookController extends Controller
 
         ]);
 
-        if( $request->hasFile('path_image')) {
-            // This stores under storage/app/public/book_images/
-            $imagePath = $request->file('path_image')->store('book_images', 'public');
-        }
+        $imagePath = null;
+
+        if ($request->hasFile('path_image')) {
+            $imagePath = Storage::disk('minio')->put('book_images', $request->file('path_image'));
+    }
 
         $book->update([
             'title' => $request->title,
@@ -122,8 +123,8 @@ class BookController extends Controller
             return response()->json(['message' => 'Book not found'], 404);
         }
 
-        if($book->path_image && Storage::disk('public')->exists($book->path_image)) {
-            Storage::disk('public')->delete($book->path_image);
+        if($book->path_image && Storage::disk('minio')->exists($book->path_image)) {
+            Storage::disk('minio')->delete($book->path_image);
         }
 
         $book->delete();

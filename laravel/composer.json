@@ -13,6 +13,7 @@
         "laravel/sanctum": "^4.1",
         "laravel/socialite": "^5.20",
         "laravel/tinker": "^2.10.1",
+        "league/flysystem-aws-s3-v3": "^3.29",
         "srmklive/paypal": "^3.0"
     },
     "require-dev": {

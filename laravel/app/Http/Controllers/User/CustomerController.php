@@ -71,11 +71,11 @@ class CustomerController extends Controller
         $user = $request->user();
 
         // Store the uploaded picture
-        $path = $request->file('picture')->store('profile_pictures', 'public');
+        $path = $request->file('picture')->store('profile_pictures', 'minio');
 
         if($user->picture){
             // Delete the old picture if it exists
-            Storage::disk('public')->delete($user->picture);
+            Storage::disk('minio')->delete($user->picture);
         }
         // Update the user's profile picture path
         $user->update(['picture' => $path]);
