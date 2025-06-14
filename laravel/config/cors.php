@@ -20,8 +20,8 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
+        'https://e-commerce-book-store.up.railway.app',
         'http://localhost:5173',
-        'https://e-commerce-book-store.up.railway.app/',
         // Add more origins as needed
     ],
 
