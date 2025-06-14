@@ -19,7 +19,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173'],
+    'allowed_origins' => [
+        'http://localhost:5173',
+        'https://e-commerce-book-store.up.railway.app/',
+        // Add more origins as needed
+    ],
 
     'allowed_origins_patterns' => [],
 
