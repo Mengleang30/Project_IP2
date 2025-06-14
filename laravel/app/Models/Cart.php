@@ -11,6 +11,7 @@ class Cart extends Model
 
     protected $fillable = [
         'user_id',
+        'grand_total',
     ];
     protected $dates = ['deleted_at'];
 
