@@ -91,8 +91,8 @@ Route::group(['prefix' => '/customer/orders', 'middleware' => ['auth:sanctum', '
 
 Route::middleware(['auth:sanctum','isCustomer'])->group(function () {
     Route::post('/pay', [PayController::class, 'pay']);
-    Route::get('/capture-payment', [PayController::class, 'capturePayment']);
 });
+Route::get('/capture-payment', [PayController::class, 'capturePayment']);
 
 
 Route::group(['prefix' => '/customer/comments', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
