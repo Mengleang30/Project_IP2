@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use Illuminate\Broadcasting\BroadcastManager;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -46,7 +47,7 @@ class PaymentSuccess extends Notification
             ->salutation('Best regards, Books Store');
     }
 
-    public function toDatabases(){
+    public function toDatabase(){
         return [
             'order_id' => $this->order->id,
             'transaction_Id' => $this->payment->transaction_id,
@@ -58,14 +59,14 @@ class PaymentSuccess extends Notification
 
     public function toBroadcast()
     {
-        return [
-            'order_id' => $this->order->id,
-            'transaction_Id' => $this->payment->transaction_id,
-            'title' => 'Payment Success',
-            'amount' => $this->order->final_price ?? $this->order->total_price,
-            'toCustomer' => $this->order->user->name,
-            'message' => ' Dear ! ' . $this->order->user->name .' Your payment was successful! Thank you for your purchase. ',
-        ];
+       return new BroadcastManager([
+        'order_id' => $this->order->id,
+        'transaction_Id' => $this->payment->transaction_id,
+        'title' => 'Payment Success',
+        'amount' => $this->order->final_price ?? $this->order->total_price,
+        'toCustomer' => $this->order->user->name,
+        'message' => ' Dear ' . $this->order->user->name . ', your payment was successful! Thank you for your purchase.',
+    ]);
     }
     /**
      * Get the array representation of the notification.

@@ -10,6 +10,7 @@ use App\Notifications\PaymentSuccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Log;
 
 class PayController
 {
@@ -212,7 +213,12 @@ class PayController
             'total_price' => $amountToCharge,
         ]);
 
-        $order->user->notify(new PaymentSuccess($order,$payment,$user));
+       try {
+            $user->notify(new PaymentSuccess($order, $payment, $user));
+        } catch (\Throwable $e) {
+            Log::error('Failed to send payment success notification: ' . $e->getMessage());
+        }
+
 
         return response()->json([
             'message' => 'Payment completed successfully',
