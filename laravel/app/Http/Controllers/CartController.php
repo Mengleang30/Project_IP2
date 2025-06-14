@@ -31,10 +31,10 @@ class CartController extends Controller
             return response()->json(['message' => 'Not enough stock available'], 400);
         }
 
-        $cart = Cart::firstOrCreate([
-            'user_id' => $user->id,
-            'grand_total' => 0,
-        ]);
+        $cart = Cart::firstOrCreate(
+             ['user_id' => $user->id],         // Lookup condition
+             ['grand_total' => 0]
+        );
 
         $finalPrice = $book->price * (1 - ($book->discount / 100));
 
