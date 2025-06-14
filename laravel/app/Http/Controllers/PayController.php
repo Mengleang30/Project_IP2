@@ -71,8 +71,8 @@ class PayController
                 ],
             ],
             'application_context' => [
-                'return_url' => 'http://localhost:5173/capture-payment',
-                'cancel_url' => 'http://localhost:5173/order',
+                'return_url' => 'https://e-commerce-book-store.up.railway.app/capture-payment',
+                'cancel_url' => 'https://e-commerce-book-store.up.railway.app/order',
             ],
         ];
 
