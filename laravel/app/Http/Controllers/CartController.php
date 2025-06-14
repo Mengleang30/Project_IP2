@@ -33,6 +33,7 @@ class CartController extends Controller
 
         $cart = Cart::firstOrCreate([
             'user_id' => $user->id,
+            'grand_total' => 0,
         ]);
 
         $finalPrice = $book->price * (1 - ($book->discount / 100));
