@@ -54,9 +54,9 @@ class GoogleController
           // Generate API token for the user
           $token = $user->createToken('GoogleLogin')->plainTextToken;
 
-          return redirect()->to("https://e-commerce-book-store.up.railway.app?token=$token");
+          return redirect()->to("https://e-commerce-book-store.up.railway.app/auth/google/callback?token=$token");
 
-          return response()->json(['token' => $token]);
+        //   return response()->json(['token' => $token]);
 
       } catch (\Exception $e) {
         \Log::error('Google login error: ' . $e->getMessage());
