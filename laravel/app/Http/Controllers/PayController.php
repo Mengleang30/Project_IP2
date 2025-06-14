@@ -212,7 +212,8 @@ class PayController
             'total_price' => $amountToCharge,
         ]);
 
-        $order->user->notify(new PaymentSuccess($order,$payment,$user->name));
+        $customerName = $order->user->name ?? 'Customer';
+        $order->user->notify(new PaymentSuccess($order,$customerName,$user->name));
 
         return response()->json([
             'message' => 'Payment completed successfully',
