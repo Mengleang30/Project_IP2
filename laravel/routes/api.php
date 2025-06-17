@@ -115,6 +115,14 @@ Route::group(['prefix' => 'admin/categories', 'middleware' => ['auth:sanctum', '
     Route::delete('/{id}', CategoryController::class . '@deleteCategory');
 });
 
+Route::group(['prefix' => 'admin/orders', 'middleware' => ['auth:sanctum', 'isAdmin']], function () {
+    Route::get('/', [OrderController::class, 'listAllOrderByAdmin']);
+
+});
+
+
+
+
 Route::group(['prefix' => 'admin/coupons', 'middleware' => ['auth:sanctum', 'isAdmin']], function () {
     Route::post('/add', [CouponController::class, "createCoupon"]);
     Route::post('/action/{coupon_id}', [CouponController::class, "actionCoupon"]);

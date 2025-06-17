@@ -80,4 +80,22 @@ class OrderController
 
     }
 
+
+    public function listAllOrderByAdmin(Request $request){
+        $user = $request->user();
+        if (!$user || !$user->isAdmin()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        $orders = Order::with('orderBooks.book')->get();
+        if ($orders->isEmpty()) {
+            return response()->json(['message' => 'No orders found'], 404);
+        }
+        return response()->json([
+            'message' => 'List all orders successfully',
+            'orders' => $orders,
+        ], 200);
+
+    }
+
+
 }
