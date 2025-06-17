@@ -83,7 +83,7 @@ class OrderController
 
     public function listAllOrderByAdmin(Request $request){
         $user = $request->user();
-        if (!$user || !$user->isAdmin()) {
+        if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
         $orders = Order::with('orderBooks.book')->get();
