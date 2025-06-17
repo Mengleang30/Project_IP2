@@ -215,7 +215,7 @@ class BookController extends Controller
 
     public function ShowBooks() {
 
-        $books = Book::inRandomOrder()->limit(2)->get();
+        $books = Book::inRandomOrder()->limit(1)->get();
         return response()->json($books);
 
     }
