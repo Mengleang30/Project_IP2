@@ -100,6 +100,7 @@ class OrderController
                 'status' => $order->status,
                 "total_price" => $order->total_price,
                 'order_books' => $order->orderBooks,
+                'total_items' => $order->orderBooks->sum('quantity'),
                 'created_at' => $order->created_at,
                 'updated_at' => $order->updated_at,
             ];
