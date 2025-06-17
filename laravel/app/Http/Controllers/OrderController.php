@@ -98,6 +98,7 @@ class OrderController
                 'user_id' => $order->user_id,
                 'username' => $order->user ? $order->user->name : null,
                 'status' => $order->status,
+                "total_price" => $order->total_price,
                 'order_books' => $order->orderBooks,
                 'created_at' => $order->created_at,
                 'updated_at' => $order->updated_at,
