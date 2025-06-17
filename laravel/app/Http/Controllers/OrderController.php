@@ -86,15 +86,27 @@ class OrderController
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-        $orders = Order::with('orderBooks.book')->get();
+        $orders = Order::with(['orderBooks', 'user'])->get();
         if ($orders->isEmpty()) {
             return response()->json(['message' => 'No orders found'], 404);
         }
-        return response()->json([
-            'message' => 'List all orders successfully',
-            'orders' => $orders,
-        ], 200);
 
+        // Map username into each order
+        $ordersWithUsername = $orders->map(function ($order) {
+            return [
+                'id' => $order->id,
+                'user_id' => $order->user_id,
+                'username' => $order->user ? $order->user->name : null,
+                'status' => $order->status,
+                'order_books' => $order->orderBooks,
+                'created_at' => $order->created_at,
+                'updated_at' => $order->updated_at,
+            ];
+        });
+
+        return response()->json([
+            'orders' => $ordersWithUsername,
+        ], 200);
     }
 
 
