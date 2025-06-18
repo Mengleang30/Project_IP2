@@ -97,7 +97,7 @@ Route::group(['prefix' => '/customer/payments', 'middleware' => ['auth:sanctum',
     // Route::get('/', [CartController::class, 'getAllPayments']);
     Route::get('/{id}', [InvoiceController::class, 'getPaymentById']);
     // Route::get('/invoice/{id}', [CartController::class, 'getInvoice']);
-    Route::get('/invoice', [InvoiceController::class, 'getAllInvoicesForEachCustomer']);
+    Route::get('/', [InvoiceController::class, 'getAllInvoicesForEachCustomer']);
 
 });
 
