@@ -29,4 +29,7 @@ class Order extends Model
     {
         return $this->hasMany(Payment::class, OrderBook::class);
     }
+    public function coupon(){
+        return $this->belongsTo(Coupon::class);
+    }
 }
