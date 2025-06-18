@@ -88,11 +88,23 @@ Route::group(['prefix' => '/customer/orders', 'middleware' => ['auth:sanctum', '
    Route::get('/capture-payment', [PayController::class, 'capturePayment'])->name('paypal.capture');
 });
 
+Route::group(['prefix' => '/admin/payments', 'middleware' => ['auth:sanctum', 'isAdmin']], function () {
+    Route::get('/', [CartController::class, 'getAllPayments']);
+
+});
+Route::group(['prefix' => '/customer/payments', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
+    // Route::get('/', [CartController::class, 'getAllPayments']);
+    Route::get('/{id}', [CartController::class, 'getPaymentById']);
+    // Route::get('/invoice/{id}', [CartController::class, 'getInvoice']);
+    Route::get('/invoice', [CartController::class, 'getAllInvoicesForEachCustomer']);
+
+});
 
 Route::middleware(['auth:sanctum','isCustomer'])->group(function () {
     Route::post('/pay', [PayController::class, 'pay']);
     Route::get('/capture-payment', [PayController::class, 'capturePayment']);
 });
+
 
 
 Route::group(['prefix' => '/customer/comments', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
