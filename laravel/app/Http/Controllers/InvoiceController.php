@@ -49,7 +49,7 @@ class InvoiceController extends Controller
             ->get();
 
         if ($payments->isEmpty()) {
-            return response()->json(['message' => 'No payments found for this user'], 404);
+            return response()->json(['message' => 'No payments found for this user',"user_id"=>$user->id], 404);
         }
 
         return response()->json($payments);
