@@ -12,6 +12,7 @@ use App\Http\Controllers\WishListController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PayController;
 use App\Http\Controllers\TestController;
@@ -89,14 +90,14 @@ Route::group(['prefix' => '/customer/orders', 'middleware' => ['auth:sanctum', '
 });
 
 Route::group(['prefix' => '/admin/payments', 'middleware' => ['auth:sanctum', 'isAdmin']], function () {
-    Route::get('/', [CartController::class, 'getAllPayments']);
+    Route::get('/', [InvoiceController::class, 'getAllPayments']);
 
 });
 Route::group(['prefix' => '/customer/payments', 'middleware' => ['auth:sanctum', 'isCustomer']], function () {
     // Route::get('/', [CartController::class, 'getAllPayments']);
-    Route::get('/{id}', [CartController::class, 'getPaymentById']);
+    Route::get('/{id}', [InvoiceController::class, 'getPaymentById']);
     // Route::get('/invoice/{id}', [CartController::class, 'getInvoice']);
-    Route::get('/invoice', [CartController::class, 'getAllInvoicesForEachCustomer']);
+    Route::get('/invoice', [InvoiceController::class, 'getAllInvoicesForEachCustomer']);
 
 });
 
