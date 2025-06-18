@@ -20,7 +20,6 @@ class InvoiceController extends Controller
             return response()->json(['message' => 'No payments found'], 404);
         }
         return response()->json($payments);
-
     }
     public function getPaymentById(Request $request, $id)
     {
@@ -39,18 +38,21 @@ class InvoiceController extends Controller
 
     public function getAllInvoicesForEachCustomer(Request $request)
     {
-        $user = $request->user();
+        $user = $request->user(); // Authenticated user
+
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $invoices = Payment::where('user_id', $user->id)
-            ->with(['order', 'user'])
+        $payments = Payment::with('order') // optional: include order relation
+            ->where('user_id', $user->id)
+            ->latest('created_at')
             ->get();
 
-        if ($invoices->isEmpty()) {
+        if ($payments->isEmpty()) {
             return response()->json(['message' => 'No payments found for this user'], 404);
         }
-        return response()->json($invoices);
+
+        return response()->json($payments);
     }
 }
