@@ -44,7 +44,7 @@ class InvoiceController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $payments = Payment::where('user_id', $user->id)
+        $payments = Payment::where('user_id', $user->id)->with(['order.order_books'])
             ->latest('created_at')
             ->get();
 
