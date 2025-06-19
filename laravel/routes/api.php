@@ -138,7 +138,7 @@ Route::group(['prefix' => 'admin/orders', 'middleware' => ['auth:sanctum', 'isAd
 
 Route::group(['prefix' => 'admin/coupons', 'middleware' => ['auth:sanctum', 'isAdmin']], function () {
     Route::post('/add', [CouponController::class, "createCoupon"]);
-    Route::post('/action/{coupon_id}', [CouponController::class, "actionCoupon"]);
+    Route::patch('/action/{coupon_id}', [CouponController::class, "actionCoupon"]);
     Route::get('/', [CouponController::class, "listCoupons"]);
 
 });
