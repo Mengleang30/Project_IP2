@@ -44,7 +44,7 @@ class CouponController
             'is_active' => 'required|boolean',
         ]);
 
-        $coupon = Coupon::find($coupon_id)->first();
+        $coupon = Coupon::find($coupon_id);
 
         $coupon->is_active= $validated['is_active'];
         $coupon->save();
