@@ -56,6 +56,19 @@ class CouponController
 
 
     }
+     public function delete(Request $request, $coupon_id){
+
+        
+        $coupon = Coupon::find($coupon_id);
+        $coupon->delete();
+
+        return response()->json([
+            'message' => "Coupon_id $coupon_id deleted successfully!",
+
+        ]);
+
+
+    }
 
     public function listCoupons(){
         $coupons = Coupon::all();

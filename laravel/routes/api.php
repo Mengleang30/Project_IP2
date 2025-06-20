@@ -140,6 +140,7 @@ Route::group(['prefix' => 'admin/coupons', 'middleware' => ['auth:sanctum', 'isA
     Route::post('/add', [CouponController::class, "createCoupon"]);
     Route::patch('/action/{coupon_id}', [CouponController::class, "actionCoupon"]);
     Route::get('/', [CouponController::class, "listCoupons"]);
+    Route::delete('/delete/{coupon_id}', [CouponController::class, "delete"]);
 
 });
 
