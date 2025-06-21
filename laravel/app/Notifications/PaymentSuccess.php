@@ -50,6 +50,7 @@ class PaymentSuccess extends Notification
     public function toDatabase(){
         return [
             'order_id' => $this->order->id,
+            'title'=> "Payment was successful!",
             'transaction_Id' => $this->payment->transaction_id,
             'amount' => $this->order->final_price ?? $this->order->total_price,
             'message' => 'Your payment was successful!
@@ -61,6 +62,7 @@ class PaymentSuccess extends Notification
     {
        return new BroadcastManager([
         'order_id' => $this->order->id,
+         'title'=> "Payment was successful!",
         'transaction_Id' => $this->payment->transaction_id,
         'title' => 'Payment Success',
         'amount' => $this->order->final_price ?? $this->order->total_price,
