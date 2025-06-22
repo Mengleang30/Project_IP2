@@ -4,7 +4,7 @@ namespace App\Notifications;
 
 use Illuminate\Broadcasting\BroadcastManager;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -27,7 +27,7 @@ class PaymentSuccess extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database', 'mail','broadcast'];
+        return ['database', 'mail'];
     }
 
     /**
@@ -62,7 +62,7 @@ class PaymentSuccess extends Notification
     {
        return new BroadcastManager([
         'order_id' => $this->order->id,
-         'title'=> "Payment was successful!",
+        'title'=> "Payment was successful!",
         'transaction_Id' => $this->payment->transaction_id,
         'title' => 'Payment Success',
         'amount' => $this->order->final_price ?? $this->order->total_price,

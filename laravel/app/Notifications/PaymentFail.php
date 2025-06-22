@@ -75,6 +75,7 @@ class PaymentFail extends Notification
     {
         return [
             'message' => 'Payment failed for order #' . $this->order->id,
+            'title' => 'Payment Failed',
             'order_id' => $this->order->id,
             'status' => 'failed',
             'total_price' => $this->order->total_price,
